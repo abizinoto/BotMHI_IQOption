@@ -12,6 +12,7 @@ from iqoptionapi.stable_api import IQ_Option
 from datetime import datetime
 import time
 import sys
+import configparser
 
 
 def stop(lucro, gain, loss):
@@ -25,10 +26,10 @@ def stop(lucro, gain, loss):
 
 def Martingale(valor, payout):
 	lucro_esperado = valor * payout
-	perca = float(valor)	
+	perda = float(valor)	
 		
 	while True:
-		if round(valor * payout, 2) > round(abs(perca) + lucro_esperado, 2):
+		if round(valor * payout, 2) > round(abs(perda) + lucro_esperado, 2):
 			return round(valor, 2)
 			break
 		valor += 0.01
@@ -46,12 +47,22 @@ def Payout(par):
 	return d
 
 print('''
-	     Simples MHI BOT
-	  youtube.com/c/IQCoding
+  Simples MHI BOT-Estratégia - Tani
  ------------------------------------
 ''')
 
-API = IQ_Option('login', 'senha')
+def configuracao():
+    
+    arquivo = configparser.RawConfigParser()
+    arquivo.read('config.txt')
+    
+    return {'email': arquivo.get('GERAL', 'email'), 'senha': arquivo.get('GERAL', 'senha'), 'valor': arquivo.get('GERAL', 'valor'), 'opcao': arquivo.get('GERAL', 'opcao'), 'limite_payout': arquivo.get('GERAL', 'limite_payout'), 'valor': arquivo.get('GERAL', 'valor')}
+
+
+conf = configuracao()
+API = IQ_Option(conf['email'],conf['senha'])
+
+# API = IQ_Option('login', 'senha')
 API.connect()
 
 API.change_balance('PRACTICE') # PRACTICE / REAL
@@ -72,18 +83,23 @@ martingale += 1
 
 stop_loss = float(input(' Indique o valor de Stop Loss: '))
 stop_gain = float(input(' Indique o valor de Stop Gain: '))
+min_payout = float(input(' Indique o Payout minimo para a operação: '))
 
 lucro = 0
 payout = Payout(par)
+
+print('\n Bot iniciado...\n')
 while True:
 	minutos = float(((datetime.now()).strftime('%M.%S'))[1:])
+
 	entrar = True if (minutos >= 4.58 and minutos <= 5) or minutos >= 9.58 else False
-	print('Hora de entrar?',entrar,'/ Minutos:',minutos)
+
+	#print('Hora de entrar?',entrar,'/ Minutos:',minutos)
 	
 	if entrar:
-		print('\n\nIniciando operação!')
+		#print('Iniciando operação!', end=":")
 		dir = False
-		print('Verificando cores..', end='')
+		print('Par {} : Min {} - Velas:'.format(par, minutos, ), end='')
 		velas = API.get_candles(par, 60, 3, time.time())
 		
 		velas[0] = 'g' if velas[0]['open'] < velas[0]['close'] else 'r' if velas[0]['open'] > velas[0]['close'] else 'd'
@@ -91,13 +107,13 @@ while True:
 		velas[2] = 'g' if velas[2]['open'] < velas[2]['close'] else 'r' if velas[2]['open'] > velas[2]['close'] else 'd'
 		
 		cores = velas[0] + ' ' + velas[1] + ' ' + velas[2]		
-		print(cores)
+		print(cores.upper(), end = " | ")
 	
 		if cores.count('g') > cores.count('r') and cores.count('d') == 0 : dir = 'put'
 		if cores.count('r') > cores.count('g') and cores.count('d') == 0 : dir = 'call'		
 		
 		if dir:
-			print('Direção:',dir)
+			print('Direção:',dir.upper())
 			
 			valor_entrada = valor_entrada_b
 			for i in range(martingale):
@@ -112,7 +128,7 @@ while True:
 							valor = valor if valor > 0 else float('-' + str(abs(valor_entrada)))
 							lucro += round(valor, 2)
 							
-							print('Resultado operação: ', end='')
+							print('--> Resultado operação: ', end='')
 							print('WIN /' if valor > 0 else 'LOSS /' , round(valor, 2) ,'/', round(lucro, 2),('/ '+str(i)+ ' GALE' if i > 0 else '' ))
 							
 							valor_entrada = Martingale(valor_entrada, payout)
