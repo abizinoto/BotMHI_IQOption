@@ -1,0 +1,9 @@
+[GERAL]
+email = xxx@hotmail.com
+senha = xxx
+valor = 2
+# Opções: binary, turbo, digital, best_payout
+opcao: best_payout
+limite_payout: 80
+banca:16000
+meta:2%
