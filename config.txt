@@ -7,3 +7,5 @@ opcao: best_payout
 limite_payout: 80
 banca:16000
 meta:2%
+TelegramToken:1291522910:AAHxOCEly2oc_dBjZH3S1dyCv_PBcLv_egA
+TelegramChatId:-254537023
