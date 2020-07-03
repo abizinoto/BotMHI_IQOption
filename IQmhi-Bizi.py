@@ -217,7 +217,7 @@ if not input_default:
 	if cons_noticias == 'S':
 		num_min_noticias = int(input(' Quandos minutos desconsiderar para as notícias: '))
 	else:
-		num_min_noticias - 0
+		num_min_noticias = 0
 
 	opcoes = (input(' Indique o tipo de Opções (<B>inárias ou <D>igital: ')).upper()
 
