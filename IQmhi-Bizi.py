@@ -66,11 +66,6 @@ def Payout(par, tipo = 'turbo', payout_ant = 70):
 		API.unsubscribe_strike_list(par, 1)
 		return d
 
-print('''
- -----------------------------------------------------
-     BOT-Estratégia - MHI - IQOptions - abizinoto
- -----------------------------------------------------''')
-
 def configuracao():
     
     arquivo = configparser.RawConfigParser()
@@ -83,7 +78,6 @@ def configuracao():
             'limite_payout': arquivo.get('GERAL', 'limite_payout'),
             'TELEGRAM_TOKEN': arquivo.get('GERAL','TelegramToken'),
             'TELEGRAM_CHATID': arquivo.get('GERAL','TelegramChatId')}
-
 
 def sendtelegram(message):
 	global conf
@@ -143,16 +137,32 @@ def show_stats():
 		if busca_pares['turbo'][par]['open'] == True:
 			tipo, payout = best_bet(par, True)
 			stat = analisa_par_mhi(par, 1, 2, payout)
-			print(' {} -> Melhor payout: {} {} | Taxa de ganho IN: {:.2f}, G1 {:.2f}, G2 {:.2f}'.format(par, tipo, payout, (stat['tx_gain_real_ent']), stat['tx_gain_real_g1'],stat['tx_gain_real_g2']))
+			print(' {} -> Melhor payout: {:8} {} | Taxa de ganho IN: {: 6.2f}, G1 {: 6.2f}, G2 {: 6.2f}'.format(par, tipo, payout, (stat['tx_gain_real_ent']), stat['tx_gain_real_g1'],stat['tx_gain_real_g2']))
 
 	for par in busca_pares['digital']:
 		if busca_pares['digital'][par]['open'] == True: # and par not in pares and par != "GBPJPY-OTC":
 			tipo, payout = best_bet(par, True)
 			stat = analisa_par_mhi(par, 1, 2, payout)
-			print(' {} -> Melhor payout: {} {} | Taxa de ganho IN: {:.2f}, G1 {:.2f}, G2 {:.2f}'.format(par, tipo, payout, (stat['tx_gain_real_ent']), stat['tx_gain_real_g1'],stat['tx_gain_real_g2']))
+			print(' {} -> Melhor payout: {:8} {} | Taxa de ganho IN: {: 6.2f}, G1 {: 6.2f}, G2 {: 6.2f}'.format(par, tipo, payout, (stat['tx_gain_real_ent']), stat['tx_gain_real_g1'],stat['tx_gain_real_g2']))
 	print(' -------------------------------------------------------------------------------------')
 
+def noticias(par, tempo=15, detalhar = False):      # noticias.check(par, 30)
+	global dados
+	possui_noticias = False
+	for key in dados['result']:
+		hora_noticia = datetime.strptime(str(key['data']),"%Y-%m-%d %H:%M:%S")  # time.strptime((str(key['data']),"%d %b %y %H:%M:%S"))
+		hora_atual = datetime.now() #).strftime("%Y-%m-%d %H:%M:%S")
+		hora_noticia_s = time.mktime(hora_noticia.timetuple())
+		hora_atual_s = time.mktime(hora_atual.timetuple())
+		minutos_diferenca = int(hora_noticia_s-hora_atual_s) / 60
+		if (par.count(key['economy']) > 0) and (key['impact']> 1) and (minutos_diferenca > -tempo and minutos_diferenca < tempo):
+			possui_noticias = True
+			if detalhar:
+				print(' Noticias de {} {} touros as {} >>> {}'.format(key['economy'], key['impact'], key['data'][11:17], key['name']))
+	return possui_noticias
+
 def check_cor_vela_win(par, tempo, dir, lucro):
+    
 	tempo = tempo * 60
 	while True:
 		minutos5 = float(((datetime.now()).strftime('%M.%S'))[1:])
@@ -163,6 +173,15 @@ def check_cor_vela_win(par, tempo, dir, lucro):
 			dir_vela = 'call' if vela[0]['open'] < vela[0]['close'] else 'put' if vela[0]['open'] > vela[0]['close'] else 'doji'
 			break
 	return True, (lucro) if dir == dir_vela else 0
+
+#====================================================================================#
+# =============================   INICIO DO ROBO   ================================= #
+#====================================================================================#
+
+print('''
+ -----------------------------------------------------
+     BOT-Estratégia - MHI - IQOptions - abizinoto
+ -----------------------------------------------------''')
 
 conf = configuracao()
 API = IQ_Option(conf['email'],conf['senha'])
@@ -178,9 +197,10 @@ else:
  
 API.change_balance('PRACTICE') # PRACTICE / REAL
  
-input_default = False
+input_default = False	# Default=False >>> Trocar para True para efetuar testes e não precisar entrar com os dados de parametros
 
-show_stats()
+if (input(' Deseja processar a estatística dos pares (S/N)? :')).upper()[:1] == 'S':
+	show_stats()
 
 if not input_default:
 	par = input(' Indique uma paridade para operar: ').upper()
@@ -200,7 +220,6 @@ if not input_default:
 		num_min_noticias - 0
 
 	opcoes = (input(' Indique o tipo de Opções (<B>inárias ou <D>igital: ')).upper()
-	ind_stat = input(' Deseja processar a estatística dos pares? :').upper
 
 	confirma = ''
 	while True:
@@ -227,21 +246,6 @@ jsonurl = 'https://botpro.com.br/calendario-economico/'
 r = http.request('GET', jsonurl)
 dados = json.loads(r.data)
 #noticias = dados['result']
-
-def noticias(par, tempo=15, detalhar = False):      # noticias.check(par, 30)
-	global dados
-	possui_noticias = False
-	for key in dados['result']:
-		hora_noticia = datetime.strptime(str(key['data']),"%Y-%m-%d %H:%M:%S")  # time.strptime((str(key['data']),"%d %b %y %H:%M:%S"))
-		hora_atual = datetime.now() #).strftime("%Y-%m-%d %H:%M:%S")
-		hora_noticia_s = time.mktime(hora_noticia.timetuple())
-		hora_atual_s = time.mktime(hora_atual.timetuple())
-		minutos_diferenca = int(hora_noticia_s-hora_atual_s) / 60
-		if (par.count(key['economy']) > 0) and (key['impact']> 1) and (minutos_diferenca > -tempo and minutos_diferenca < tempo):
-			possui_noticias = True
-			if detalhar:
-				print(' Noticias de {} {} touros as {} >>> {}'.format(key['economy'], key['impact'], key['data'][11:17], key['name']))
-	return possui_noticias
 
 lucro = 0
 payout = Payout(par, opcao_escolhida)
