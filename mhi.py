@@ -4,7 +4,7 @@
 	- Entradas para 1 minuto
 	- Calcular as cores das velas de cada quadrado, ultimas 3 velas, minutos: 2, 3 e 4 / 7, 8 e 9
 	- Entrar contra a maioria
-	
+	- teste de alteracao do Taniguti
 	- Estrategia retirada do video https://www.youtube.com/watch?v=FePy1GY2wqQ	
 '''
 
