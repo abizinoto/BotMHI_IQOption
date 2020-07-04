@@ -14,7 +14,12 @@
 	- exportar Listagem de operações para planilha
 	- Incluir avisos e opção de não operar em notícias  - OK 
 		https://botpro.com.br/calendario-economico/
+<<<<<<< HEAD
 	- Calcular entrada/gale de fechamento somente para meta ou para loss - Taniguti
+=======
+	- Calcular entrada/gale de fechamento somente para meta ou para loss 
+ 	Alexandre Bizinoto
+>>>>>>> 42fe0fa9d1a7def8d5aa98672cb1ab5069dd2054
 '''
 
 from iqoptionapi.stable_api import IQ_Option
