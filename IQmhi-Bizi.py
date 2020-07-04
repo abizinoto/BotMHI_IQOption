@@ -28,6 +28,12 @@ import requests
 import json
 import urllib3
 
+def par_aberto(par, tipo):
+	busca_pares = API.get_all_open_time()
+	return (busca_pares[tipo][par]['open'] == True)
+
+        
+	
 def stop(lucro, gain, loss):
 	if lucro <= float('-' + str(abs(loss))):
 		print('Stop Loss batido!')
@@ -131,7 +137,7 @@ def best_bet(par, check = True):
 
 def show_stats():
 	print('\n Estatística dos Pares abertos (ultimas 2h):')
-	print(' -------------------------------------------------------------------------------------')
+	print(' -----------------------------------------------------------------------------------------')
 	busca_pares = API.get_all_open_time()
 	for par in busca_pares['turbo']:
 		if busca_pares['turbo'][par]['open'] == True:
@@ -144,7 +150,7 @@ def show_stats():
 			tipo, payout = best_bet(par, True)
 			stat = analisa_par_mhi(par, 1, 2, payout)
 			print(' {} -> Melhor payout: {:8} {} | Taxa de ganho IN: {: 6.2f}, G1 {: 6.2f}, G2 {: 6.2f}'.format(par, tipo, payout, (stat['tx_gain_real_ent']), stat['tx_gain_real_g1'],stat['tx_gain_real_g2']))
-	print(' -------------------------------------------------------------------------------------')
+	print(' --------------------------------------====-----------------------------------------------')
 
 def noticias(par, tempo=15, detalhar = False):      # noticias.check(par, 30)
 	global dados
@@ -199,27 +205,45 @@ API.change_balance('PRACTICE') # PRACTICE / REAL
  
 input_default = False	# Default=False >>> Trocar para True para efetuar testes e não precisar entrar com os dados de parametros
 
+
 if (input(' Deseja processar a estatística dos pares (S/N)? :')).upper()[:1] == 'S':
 	show_stats()
 
 if not input_default:
-	par = input(' Indique uma paridade para operar: ').upper()
+
+	while True:
+		par = input(' Indique uma paridade para operar: ').upper()
+		opcoes = (input(' Indique o tipo de Opções (<B>inárias ou <D>igital: ')).upper()[:1]
+		if opcoes == 'B':
+			print(' >> Operar nas Binárias')
+			if par_aberto(par, 'turbo'):
+				break
+		else:
+			print(' >> Operar nas Digitais')
+			if par_aberto(par, 'digital'):
+				break
+		print(' ATENÇÂO! Este par/asset não se encontra aberto no momento. Tente outro par! \n') 
+	
 	valor_entrada = float(input(' Indique um valor para entrar: '))
 	valor_entrada_b = float(valor_entrada)
 
-	martingale = int(input(' Indique a quantia de martingales (max 3): '))
+	martingale = int(input(' Indique a quantia de martingales (0 a 3): '))
 	martingale += 1
+	if matingale > 4:
+		print(' ATENÇÂO! Maximo de Gale é 3. Operação encerrada!')
 
 	stop_loss = float(input(' Indique o valor de Stop Loss: '))
 	stop_gain = float(input(' Indique o valor de Stop Gain: '))
-	min_payout = float(input(' Indique o Payout minimo para a operação: ')) / 100
+	min_payout = float(input(' Indique o Payout minimo para a operação (%): ')) / 100
+	if min_payout < 0 or min_payout > 100:
+		print(' ATENÇÂO! Payout entre 0 e 100. Operação encerrada!')
+	
 	cons_noticias = (input(' Considerar não operar com notícias acima de 1 touro? (S/N): ' )).upper()
 	if cons_noticias == 'S':
 		num_min_noticias = int(input(' Quandos minutos desconsiderar para as notícias: '))
 	else:
 		num_min_noticias = 0
-
-	opcoes = (input(' Indique o tipo de Opções (<B>inárias ou <D>igital: ')).upper()
+	
 
 	confirma = ''
 	while True:
