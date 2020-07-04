@@ -28,7 +28,7 @@ import requests
 import json
 import urllib3
 
-bot_version = '0.07.04 rev 1'
+bot_version = '0.07.04 rev 1a'
 
 def par_aberto(par, tipo):
 	busca_pares = API.get_all_open_time()
