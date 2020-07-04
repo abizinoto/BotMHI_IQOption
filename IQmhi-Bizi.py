@@ -15,6 +15,7 @@
 	- Incluir avisos e opção de não operar em notícias  - OK 
 		https://botpro.com.br/calendario-economico/
 	- Calcular entrada/gale de fechamento somente para meta ou para loss 
+ 	Alexandre Bizinoto
 '''
 
 from iqoptionapi.stable_api import IQ_Option
