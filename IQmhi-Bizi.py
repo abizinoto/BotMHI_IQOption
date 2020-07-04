@@ -229,7 +229,7 @@ if not input_default:
 
 	martingale = int(input(' Indique a quantia de martingales (0 a 3): '))
 	martingale += 1
-	if matingale > 4:
+	if martingale > 4:
 		print(' ATENÇÂO! Maximo de Gale é 3. Operação encerrada!')
 
 	stop_loss = float(input(' Indique o valor de Stop Loss: '))
