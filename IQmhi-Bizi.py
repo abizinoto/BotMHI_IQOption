@@ -28,11 +28,11 @@ import requests
 import json
 import urllib3
 
+bot_version = '0.07.04 rev 1'
+
 def par_aberto(par, tipo):
 	busca_pares = API.get_all_open_time()
 	return (busca_pares[tipo][par]['open'] == True)
-
-        
 	
 def stop(lucro, gain, loss):
 	if lucro <= float('-' + str(abs(loss))):
@@ -84,7 +84,15 @@ def configuracao():
             'limite_payout': arquivo.get('GERAL', 'limite_payout'),
             'TELEGRAM_TOKEN': arquivo.get('GERAL','TelegramToken'),
             'TELEGRAM_CHATID': arquivo.get('GERAL','TelegramChatId')}
-
+"""
+			'par': arquivo.get('ULTIMA','par'),							# default para testes
+      		'valor_entrada': arquivo.get('ULTIMA','valor_entrada'),
+      		'martingale': arquivo.get('ULTIMA','martingale'),
+      		'stop_loss': arquivo.get('ULTIMA','stop_loss'),
+      		'stop_gain': arquivo.get('ULTIMA','stop_gain'),
+      		'cons_noticias': arquivo.get('ULTIMA','cons_noticias'),
+      		'opcoes': arquivo.get('ULTIMA','opcoes')}
+"""
 def sendtelegram(message):
 	global conf
 	send_text = 'https://api.telegram.org/bot' + conf['TELEGRAM_TOKEN'] + '/sendMessage?chat_id=' + conf['TELEGRAM_CHATID'] + '&parse_mode=Markdown&text=' + message
@@ -192,7 +200,7 @@ print('''
 conf = configuracao()
 API = IQ_Option(conf['email'],conf['senha'])
 API.connect()
-print(' API : {} \n'.format(API.__version__))
+print(' API : {}    Bot : {} \n'.format(API.__version__,bot_version))
       
 if API.check_connect():
 	print(' Conectado com sucesso - Operadora : IQ OPtion!')
